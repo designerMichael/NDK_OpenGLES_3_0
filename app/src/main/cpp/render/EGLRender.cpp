@@ -9,6 +9,8 @@
 #define VERTEX_POS_LOC  0
 #define TEXTURE_POS_LOC 1
 
+#define ENABLE_SINGLE_BUFFER
+
 EGLRender *EGLRender::m_Instance = nullptr;
 
 #define PARAM_TYPE_SHADER_INDEX    200
@@ -500,6 +502,22 @@ int EGLRender::CreateGlesEnv()
 					break;
 			}
 		}
+
+#ifdef ENABLE_SINGLE_BUFFER
+		{
+                // use single buffer
+			bool result = eglSurfaceAttrib(m_eglDisplay, m_eglSurface, EGL_RENDER_BUFFER, EGL_SINGLE_BUFFER);
+                if (!result) {
+					LOGCATE("Set EGL_SINGLE_BUFFER error.");
+                }
+                
+                result = eglSurfaceAttrib(m_eglDisplay, m_eglSurface, EGL_FRONT_BUFFER_AUTO_REFRESH_ANDROID,
+                                          1);
+                if (!result) {
+					LOGCATE("Set EGL_FRONT_BUFFER_AUTO_REFRESH_ANDROID error.");
+                }
+            }
+#endif
 
 		//5. 创建渲染上下文 EGLContext
 		m_eglCtx = eglCreateContext(m_eglDisplay, m_eglConf, EGL_NO_CONTEXT, ctxAttr);
